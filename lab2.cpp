@@ -17,6 +17,7 @@
 #include "SygnalSzumBialy.h"
 #include "SygnalTrojkatny.h"
 #include "SygnalZNasyceniem.h"
+#include "SygnalIO.h"
 
 #ifdef DEBUG
 
@@ -267,7 +268,8 @@ int main() {
 				,std::make_unique<SygnalSzumBialy>(1.0))
 			,std::make_unique<SygnalSinusoidalny>(1.0, omega))
 		,2.0);
-
+	SygnalIO sygnal_io;
+	sygnal_io.zapiszDoPliku("test.json",sygnal);
 	for (int i = 0; i < 400; i++) {
 		std::cout << round(sygnal->symuluj()*10000)/10000.0 << std::endl;
 	}

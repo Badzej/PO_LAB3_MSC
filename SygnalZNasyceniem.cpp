@@ -22,7 +22,7 @@ double SygnalZNasyceniem::symuluj() {
 nlohmann::json SygnalZNasyceniem::serializuj() {
     return {
                     {"typ", "nasycenie"},
-                    {"sygnal", komponent->serializuj()},
+                    {"sygnal_podstawowy", komponent->serializuj()},
                     {"maks_amplituda", maks_amplituda}
     };
 }
