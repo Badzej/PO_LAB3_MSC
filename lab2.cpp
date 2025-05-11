@@ -233,28 +233,33 @@ void test_RegulatorPID_skokJednostkowy()
 using namespace std;
 
 int main() {
-	// test_RegulatorP_brakPobudzenia();
-	// test_RegulatorP_skokJednostkowy();
-	// test_RegulatorPI_skokJednostkowy_1();
-	// test_RegulatorPI_skokJednostkowy_2();
-	// test_RegulatorPID_skokJednostkowy();
-	//
-	// RegulatorPID regulator(1.0, 0.1, 0.01);
-	// ModelARX model({ -0.4 }, { 0.6 }, 1, 0);  // przykładowe współczynniki
-	//
-	// PetlaSprzezeniaZwrotnego krok;
-	// //Tutaj wartosc zadana z wygenerowanego sygnalu
-	// for (int i = 0; i < 4; i++) {
-	// 	double wyjscie = krok(regulator, model);
-	// 	std::cout << "Krok " << i << " -> Wyjscie: " << wyjscie << std::endl;
-	// }
+	test_RegulatorP_brakPobudzenia();
+	test_RegulatorP_skokJednostkowy();
+	test_RegulatorPI_skokJednostkowy_1();
+	test_RegulatorPI_skokJednostkowy_2();
+	test_RegulatorPID_skokJednostkowy();
+
+	RegulatorPID regulator(1.0, 0.1, 0.01);
+	ModelARX model({ -0.4 }, { 0.6 }, 1, 0);  // przykładowe współczynniki
+
 	double f = 1.0;               // 1 Hz
 	double fs = 100.0;            // 100 próbek/sek
 	double omega = M_PI * f / fs;  //radiany na próbkę
+	std::unique_ptr<Sygnal> sygnal_wejsciowy = std::make_unique<SygnalZNasyceniem>(
+		std::make_unique<SumaSygnalow>(std::make_unique<SygnalSinusoidalny>(1.0,omega),std::make_unique<SygnalSzumBialy>(0.2)),
+		0.7);
+
+	PetlaSprzezeniaZwrotnego krok;
+	//Tutaj wartosc zadana z wygenerowanego sygnalu
+	for (int i = 0; i < 10; i++) {
+		double wyjscie = krok(regulator, model, sygnal_wejsciowy->symuluj());
+		std::cout << "Krok " << i << " -> Wyjscie: " << wyjscie << std::endl;
+	}
 
 
-	std::unique_ptr<Sygnal> sygnal =	std::make_unique<SygnalZNasyceniem> //Maksymalne nasycenie - wszystko powyzej lub ponizej zadanej wartosci jest zamieniane na wartosc -max, max
-		(std::make_unique<SumaSygnalow>	//Suma sygnalow
+	//Testowanie zlozenia sygnalow
+	std::unique_ptr<Sygnal> sygnal =	std::make_unique<SygnalZNasyceniem>
+		(std::make_unique<SumaSygnalow>
 			( std::make_unique<SumaSygnalow>
 				( std::make_unique<SumaSygnalow>
 					( std::make_unique<SumaSygnalow>
@@ -270,10 +275,13 @@ int main() {
 				,std::make_unique<SygnalStaly>(0.01))
 			,std::make_unique<SygnalSinusoidalny>(1.0, omega))
 		,2.0);
-
+	//Test serializacji
 	SygnalIO::zapiszDoPliku("test.json",sygnal);
+	//Test deserializacji
 	std::unique_ptr<Sygnal> sygnal_z_pliku = SygnalIO::wczytajZPliku("test.json");
-	std::cout<<"Orgin"<<std::endl;
+	//Porownanie wynikow obu sygnalow - specjalnie zakomentowano generatory szumu,
+	//aby wyniki byly takie same - po usunieciu SygnalowStalych ktore sa dodane zamiast bialego szumu
+	std::cout<<"Origin"<<std::endl;
 	for (int i = 0; i < 5; i++) {
 		std::cout << round(sygnal->symuluj()*10000)/10000.0 << std::endl;
 	}
@@ -282,6 +290,8 @@ int main() {
 		std::cout << round(sygnal_z_pliku->symuluj()*10000)/10000.0 << std::endl;
 	}
 
+
+	//Testy sygnałów
 	//auto generator = std::make_unique<SumaSygnalow>(std::make_unique<SumaSygnalow>( std::make_unique<SygnalSinusoidalny>(1.0,omega), std::make_unique<SygnalStaly>(1.0) ));
 	// SygnalSinusoidalny sinus(1.0,omega);
 	// for (int i = 0; i < 400; i++) {

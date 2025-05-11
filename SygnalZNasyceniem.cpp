@@ -5,10 +5,11 @@
 
 
 SygnalZNasyceniem::SygnalZNasyceniem(std::unique_ptr<Sygnal> k, double max_amp)
-    : komponent(std::move(k)), maks_amplituda(max_amp) {}
+    : SygnalKomponent(std::move(k)),
+        maks_amplituda(max_amp) {}
 
 SygnalZNasyceniem::SygnalZNasyceniem(const nlohmann::json &j):
-komponent(SygnalFabryka::stworz_z_json(j["sygnal_podstawowy"])),maks_amplituda(j["maks_amplituda"].get<double>()){
+SygnalKomponent(SygnalFabryka::stworz_z_json(j["sygnal_podstawowy"])),maks_amplituda(j["maks_amplituda"].get<double>()){
 }
 
 
