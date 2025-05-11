@@ -1,1 +1,0 @@
-#include "GeneratorSygnalow.h"

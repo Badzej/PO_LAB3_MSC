@@ -6,12 +6,17 @@
 
 #define DEBUG
 
+#include "SumaSygnalow.h"
+
 #include "RegulatorPID.h"
 #include "ModelARX.h"
 #include "PetlaSprzezeniaZwrotnego.h"
 #include "SygnalSinusoidalny.h"
 #include "SygnalProstokatny.h"
+#include "SygnalStaly.h"
+#include "SygnalSzumBialy.h"
 #include "SygnalTrojkatny.h"
+#include "SygnalZNasyceniem.h"
 
 #ifdef DEBUG
 
@@ -245,22 +250,51 @@ int main() {
 	double f = 1.0;               // 1 Hz
 	double fs = 100.0;            // 100 próbek/sek
 	double omega = M_PI * f / fs;  //radiany na próbkę
-	SygnalSinusoidalny sinus(1.0,omega);
+
+
+	std::unique_ptr<Sygnal> sygnal =	std::make_unique<SygnalZNasyceniem> //Maksymalne nasycenie - wszystko powyzej lub ponizej zadanej wartosci jest zamieniane na wartosc -max, max
+		(std::make_unique<SumaSygnalow>	//Suma sygnalow
+			( std::make_unique<SumaSygnalow>
+				( std::make_unique<SumaSygnalow>
+					( std::make_unique<SumaSygnalow>
+						( std::make_unique<SumaSygnalow>
+							( std::make_unique<SumaSygnalow>
+								(std::make_unique<SygnalSinusoidalny>(2.0, omega)
+									, std::make_unique<SygnalStaly>(0.2))
+							, std::make_unique<SygnalTrojkatny>(1.1,omega))
+						,std::make_unique<SygnalSzumBialy>(0.5))
+					,std::make_unique<SygnalProstokatny>(1.0,omega,0.25))
+				,std::make_unique<SygnalSzumBialy>(1.0))
+			,std::make_unique<SygnalSinusoidalny>(1.0, omega))
+		,2.0);
+
 	for (int i = 0; i < 400; i++) {
-		std::cout << round(sinus.symuluj()*10000)/10000.0 << std::endl;
+		std::cout << round(sygnal->symuluj()*10000)/10000.0 << std::endl;
 	}
 
-	std::cout << "Prostokat"<< std::endl << std::endl;
-	SygnalProstokatny prostokat(1.0,omega,1.0);
-	for (int i = 0; i < 400; i++) {
-		std::cout << round(prostokat.symuluj()*10000)/10000.0 << std::endl;
-	}
-
-	std::cout << "Trojkat"<< std::endl << std::endl;
-	SygnalTrojkatny trojkat(1.0,omega);
-	for (int i = 0; i < 400; i++) {
-		std::cout << round(trojkat.symuluj()*10000)/10000.0 << std::endl;
-	}
+	//auto generator = std::make_unique<SumaSygnalow>(std::make_unique<SumaSygnalow>( std::make_unique<SygnalSinusoidalny>(1.0,omega), std::make_unique<SygnalStaly>(1.0) ));
+	// SygnalSinusoidalny sinus(1.0,omega);
+	// for (int i = 0; i < 400; i++) {
+	// 	std::cout << round(sinus.symuluj()*10000)/10000.0 << std::endl;
+	// }
+	//
+	// std::cout << "Prostokat"<< std::endl << std::endl;
+	// SygnalProstokatny prostokat(1.0,omega,1.0);
+	// for (int i = 0; i < 400; i++) {
+	// 	std::cout << round(prostokat.symuluj()*10000)/10000.0 << std::endl;
+	// }
+	//
+	// std::cout << "Trojkat"<< std::endl << std::endl;
+	// SygnalTrojkatny trojkat(1.0,omega);
+	// for (int i = 0; i < 400; i++) {
+	// 	std::cout << round(trojkat.symuluj()*10000)/10000.0 << std::endl;
+	// }
+	//
+	// std::cout << "Szum bialy"<< std::endl << std::endl;
+	// SygnalSzumBialy sbialy(1.0);
+	// for (int i = 0; i < 400; i++) {
+	// 	std::cout << round(sbialy.symuluj()*10000)/10000.0 << std::endl;
+	// }
 }
 
 #endif

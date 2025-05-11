@@ -7,8 +7,15 @@ SygnalProstokatny::SygnalProstokatny(double amp,double czest,double wypel):
     czestotliwosc(czest),
     wypelnienie(wypel),
     faza(0.0)
-    // sinusoida(amp,czest)
 {};
+
+SygnalProstokatny::SygnalProstokatny(const nlohmann::json &j) :
+    amplituda(j["amplituda"].get<double>()),
+    czestotliwosc(j["czestotliwosc"].get<double>()),
+    wypelnienie(j["wypelniene"].get<double>()),
+    faza(j["faza"].get<double>()){
+}
+
 double SygnalProstokatny::symuluj() {
     faza += czestotliwosc;
     if (faza >= 2 * M_PI)
@@ -16,3 +23,14 @@ double SygnalProstokatny::symuluj() {
     double granica = 2 * M_PI * wypelnienie;
     return (faza < granica) ? amplituda : -amplituda;
 };
+
+nlohmann::json SygnalProstokatny::serializuj() {
+    return {
+            {"typ", "prostokatny"},
+            {"amplituda", amplituda},
+            {"czestotliwosc", czestotliwosc},
+            {"wypelnienie", wypelnienie},
+            {"faza", faza}
+    };
+}
+
