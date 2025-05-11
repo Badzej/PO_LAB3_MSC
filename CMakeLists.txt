@@ -4,7 +4,7 @@ project(PO_LAB3_BS)
 set(CMAKE_CXX_STANDARD 26)
 
 set(SOURCES
-        lab2.cpp
+        main.cpp
         ModelARX.cpp
         PetlaSprzezeniaZwrotnego.cpp
         RegulatorPID.cpp
