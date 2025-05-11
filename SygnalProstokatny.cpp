@@ -12,7 +12,7 @@ SygnalProstokatny::SygnalProstokatny(double amp,double czest,double wypel):
 SygnalProstokatny::SygnalProstokatny(const nlohmann::json &j) :
     amplituda(j["amplituda"].get<double>()),
     czestotliwosc(j["czestotliwosc"].get<double>()),
-    wypelnienie(j["wypelniene"].get<double>()),
+    wypelnienie(j["wypelnienie"].get<double>()),
     faza(j["faza"].get<double>()){
 }
 

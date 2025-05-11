@@ -263,15 +263,23 @@ int main() {
 								(std::make_unique<SygnalSinusoidalny>(2.0, omega)
 									, std::make_unique<SygnalStaly>(0.2))
 							, std::make_unique<SygnalTrojkatny>(1.1,omega))
-						,std::make_unique<SygnalSzumBialy>(0.5))
+						// ,std::make_unique<SygnalSzumBialy>(0.5))
+						,std::make_unique<SygnalStaly>(0.01))
 					,std::make_unique<SygnalProstokatny>(1.0,omega,0.25))
-				,std::make_unique<SygnalSzumBialy>(1.0))
+				// ,std::make_unique<SygnalSzumBialy>(1.0))
+				,std::make_unique<SygnalStaly>(0.01))
 			,std::make_unique<SygnalSinusoidalny>(1.0, omega))
 		,2.0);
-	SygnalIO sygnal_io;
-	sygnal_io.zapiszDoPliku("test.json",sygnal);
-	for (int i = 0; i < 400; i++) {
+
+	SygnalIO::zapiszDoPliku("test.json",sygnal);
+	std::unique_ptr<Sygnal> sygnal_z_pliku = SygnalIO::wczytajZPliku("test.json");
+	std::cout<<"Orgin"<<std::endl;
+	for (int i = 0; i < 5; i++) {
 		std::cout << round(sygnal->symuluj()*10000)/10000.0 << std::endl;
+	}
+	std::cout<<"Kopia"<<std::endl;
+	for (int i = 0; i < 5; i++) {
+		std::cout << round(sygnal_z_pliku->symuluj()*10000)/10000.0 << std::endl;
 	}
 
 	//auto generator = std::make_unique<SumaSygnalow>(std::make_unique<SumaSygnalow>( std::make_unique<SygnalSinusoidalny>(1.0,omega), std::make_unique<SygnalStaly>(1.0) ));
